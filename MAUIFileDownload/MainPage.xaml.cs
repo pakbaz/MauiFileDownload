@@ -2,24 +2,22 @@
 
 public partial class MainPage : ContentPage
 {
-	int count = 0;
 
 	public MainPage()
 	{
 		InitializeComponent();
 	}
 
-	private void OnCounterClicked(object sender, EventArgs e)
+	private async void OnDownloadClicked(object sender, EventArgs e)
 	{
-		count++;
-
-		if (count == 1)
-			CounterBtn.Text = $"Clicked {count} time";
-		else
-			CounterBtn.Text = $"Clicked {count} times";
-
-		SemanticScreenReader.Announce(CounterBtn.Text);
-	}
+        var httpClient = new HttpClient();
+		var path = Environment.CurrentDirectory + "/download.pdf";
+        var responseStream = await httpClient.GetStreamAsync("https://localhost:7040/download");
+        using var fileStream = new FileStream(path, FileMode.Create);
+        responseStream.CopyTo(fileStream);
+        FileInfo info = new FileInfo(path);
+        if (info.Exists) await DisplayAlert("Download", $"File Has been saved size: {info.Length} name: {info.FullName}", "OK");
+    }
 }
 
 
